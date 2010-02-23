@@ -58,6 +58,12 @@ sub detect_dmesg
 
 			# Xen
 			qr/Xen virtual console/ => 'Xen',
+
+			# Newer kernels are enlightened...
+			qr/booting paravirtualized kernel on kvm/i => 'KVM',
+			qr/booting paravirtualized kernel on lguest/i => 'lguest',
+			qr/booting paravirtualized kernel on vmi/i => 'VMWare',
+			qr/booting paravirtualized kernel on xen/i => 'Xen',
 		  ],
 	);
 
