@@ -90,13 +90,6 @@ it simply means we couldn't detect it.
 
 =cut
 
-sub verbose
-{
-	my ($self) = @_;
-
-	return $self->{verbose};
-}
-
 sub detect
 {
 	my ($self) = @_;
@@ -105,22 +98,34 @@ sub detect
 
 	my %virt_found;
 	for my $name ( @detectors ) {
-		print "Running detector $name\n" if $self->verbose;
+		print "Running detector $name\n" if $self->{verbose};
 
 		my $found = eval { $self->$name; };
 		if( $found ) {
 			$virt_found{$found}++;
-			print "$name callback detected $found\n" if $self->verbose;
+			print "$name callback detected $found\n" if $self->{verbose};
 		} else {
 			if( $@ ) {
-				warn "Callback $name failed: $@" if $self->verbose;
+				warn "Callback $name failed: $@" if $self->{verbose};
 			}
-			print "$name callback did not detect virtualization\n" if $self->verbose;
+			print "$name callback did not detect virtualization\n" if $self->{verbose};
 		}
 	}
 
 	return keys %virt_found;
 }
+
+=head2 Internal Methods
+
+You probably shouldn't ever need to call these
+
+=over 4
+
+=item get_detectors ( )
+
+Returns a list of all detector subroutines for the given instance.
+
+=cut
 
 sub get_detectors
 {
@@ -131,6 +136,16 @@ sub get_detectors
 	no strict 'refs';
 	return grep { /^detect_/ } keys %{"${class}::"};
 }
+
+=item _fh_apply_patterns ( $fh, $patterns )
+
+Check, linewise, the data from $fh against the patterns in $patterns.
+
+$patterns is a listref read pairwise.  The first item of each pair is the
+pattern, and the second item of each pair is the name of the virt solution
+detected by the pattern.
+
+=cut
 
 sub _fh_apply_patterns
 {
@@ -148,6 +163,16 @@ sub _fh_apply_patterns
 	return undef;
 }
 
+=item _check_command_output ( $command, $patterns )
+
+Check, linewise, the output of $command against the patterns in $patterns.
+
+$patterns is a listref read pairwise.  The first item of each pair is the
+pattern, and the second item of each pair is the name of the virt solution
+detected by the pattern.
+
+=cut
+
 sub _check_command_output
 {
 	my($self, $command, $patterns) = @_;
@@ -160,6 +185,19 @@ sub _check_command_output
 
 	return $result;
 }
+
+=item _check_file_contents ( $fileglob, $patterns )
+
+Check, linewise, the content of each filename in $fileglob against the
+patterns in $patterns.
+
+$fileglob is a glob that returns zero or more filenames.
+
+$patterns is a listref read pairwise.  The first item of each pair is the
+pattern, and the second item of each pair is the name of the virt solution
+detected by the pattern.
+
+=cut
 
 sub _check_file_contents
 {
@@ -179,6 +217,16 @@ sub _check_file_contents
 	return undef;
 }
 
+=item _check_path_exists ( $paths )
+
+Checks for the existence of each path in $paths.
+
+$paths is a listref read pairwise.  The first item of each pair is the path
+name, and the second item of each pair is the name of the virt solution
+detected by the existence of that $path.
+
+=cut
+
 sub _check_path_exists
 {
 	my ($self, $paths) = @_;
@@ -193,17 +241,33 @@ sub _check_path_exists
 	return undef;
 }
 
-=cut
-
 =head1 AUTHOR
 
 Dave O'Neill, <dmo@dmo.ca>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-sys-detect-virtualization at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Sys-Detect-Virtualization>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+Known issues:
+
+=over 4
+
+=item *
+
+No support for non-Linux platforms.  Feel free to contribute an appropriate
+Sys::Detect::Virtualization::foo class for your platform.
+
+=item *
+
+No weighting of tests so that high-confidence checks can be done first.
+Patches welcome.
+
+=back
+
+Please report any bugs or feature requests to C<bug-sys-detect-virtualization
+at rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Sys-Detect-Virtualization>.  I
+will be notified, and then you'll automatically be notified of progress on your
+bug as I make changes.
 
 
 =head1 SUPPORT
