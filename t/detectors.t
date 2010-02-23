@@ -1,0 +1,16 @@
+use strict;
+use warnings;
+use Test::More;
+use Test::Deep;
+
+plan skip_all => 'Test only available on Linux' unless $^O eq 'linux';
+plan tests => 2;
+
+use_ok('Sys::Detect::Virtualization');
+
+my $d = Sys::Detect::Virtualization->new();
+
+is_deeply(
+	[ sort $d->get_detectors() ],
+	[ sort qw( detect_dmesg detect_ide_devices detect_paths detect_scsi_devices detect_mtab detect_dmidecode) ],
+	'Got expected detectors on Linux');

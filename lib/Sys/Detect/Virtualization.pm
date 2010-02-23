@@ -55,7 +55,7 @@ Currently, only Linux is supported.
 
 sub new
 {
-	my ($class, @extra_args) = @_;
+	my ($class, $extra_args) = @_;
 
 	die q{Perl doesn't know what OS you're on!} unless $^O;
 	my $submodule = join('::', __PACKAGE__, lc $^O);
@@ -68,7 +68,10 @@ sub new
 		die "Constructor failure: $local_err";
 	}
 
-	return $submodule->new(@extra_args);
+	my $self = $submodule->new($extra_args);
+	$self->{verbose} = exists $extra_args->{verbose} ? $extra_args->{verbose} : 0;
+
+	return $self;
 }
 
 =head2 Instance Methods
@@ -87,9 +90,110 @@ it simply means we couldn't detect it.
 
 =cut
 
+sub verbose
+{
+	my ($self) = @_;
+
+	return $self->{verbose};
+}
+
 sub detect
 {
+	my ($self) = @_;
+
+	my @detectors = $self->get_detectors();
+
+	my %virt_found;
+	for my $name ( @detectors ) {
+		print "Running detector $name\n" if $self->verbose;
+
+		my $found = eval { $self->$name; };
+		if( $found ) {
+			$virt_found{$found}++;
+			print "$name callback detected $found\n" if $self->verbose;
+		} else {
+			if( $@ ) {
+				warn "Callback $name failed: $@" if $self->verbose;
+			}
+			print "$name callback did not detect virtualization\n" if $self->verbose;
+		}
+	}
+
+	return keys %virt_found;
 }
+
+sub get_detectors
+{
+	my ($self) = @_;
+
+	my $class = ref $self;
+
+	no strict 'refs';
+	return grep { /^detect_/ } keys %{"${class}::"};
+}
+
+sub _fh_apply_patterns
+{
+	my ($self, $fh, $patterns) = @_;
+
+	while(my $line = <$fh>) {
+		for(my $i = 0; $i < scalar @$patterns; $i+=2) {
+			my ($pattern, $name) = @{$patterns}[$i, $i+1];
+			if( $line =~ /$pattern/ ) {
+				return $name;
+			}
+		}
+	}
+
+	return undef;
+}
+
+sub _check_command_output
+{
+	my($self, $command, $patterns) = @_;
+
+	# TODO: check $ENV{PATH} for $command first, or trust the shell?
+
+	open( my $fh, "$command|") or die $!;
+	my $result = $self->_fh_apply_patterns( $fh, $patterns );
+	close $fh;
+
+	return $result;
+}
+
+sub _check_file_contents
+{
+	my ($self, $fileglob, $patterns) = @_;
+
+	# TODO: caller does globbing, passes listref of filenames?
+	while( my $filename = glob($fileglob) ) {
+		my $fh;
+		if( ! open( $fh, "<$filename") ) {
+#			warn "skipping $filename: $!";
+			next;
+		}
+		my $result = $self->_fh_apply_patterns( $fh, $patterns );
+		close $fh;
+		if( $result ) { return $result };
+	}
+	return undef;
+}
+
+sub _check_path_exists
+{
+	my ($self, $paths) = @_;
+
+	for(my $i = 0; $i < scalar @{$paths}; $i+=2) {
+		my ($path, $name) = @{$paths}[$i, $i+1];
+		if( -e $path ) {
+			return $name;
+		}
+	}
+
+	return undef;
+}
+
+=cut
 
 =head1 AUTHOR
 
@@ -137,7 +241,7 @@ L<http://www.dmo.ca/blog/>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2010 Dave O'Neill.
+Copyright (C) 2009 Roaring Penguin Software Inc.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
