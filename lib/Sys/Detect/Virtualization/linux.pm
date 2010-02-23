@@ -32,6 +32,12 @@ sub new
 	return $self;
 }
 
+=item detect_dmesg ( )
+
+Check the output of the 'dmesg' command for telltales.
+
+=cut
+
 sub detect_dmesg
 {
 	my ($self) = @_;
@@ -57,6 +63,12 @@ sub detect_dmesg
 
 }
 
+=item detect_dmidecode ( )
+
+Check the output of the 'dmidecode' command for telltales.
+
+=cut
+
 sub detect_dmidecode
 {
 	my ($self) = @_;
@@ -78,6 +90,12 @@ sub detect_dmidecode
 	);
 }
 
+=item detect_ide_devices ( )
+
+Check /proc/ide/hd*/model for telltale model information.
+
+=cut
+
 sub detect_ide_devices
 {
 	my ($self) = @_;
@@ -97,6 +115,12 @@ sub detect_ide_devices
 	);
 }
 
+=item detect_mtab ( )
+
+Check /etc/mtab for telltale devices
+
+=cut
+
 sub detect_mtab
 {
 	my ($self) = @_;
@@ -109,6 +133,12 @@ sub detect_mtab
 		]
 	);
 }
+
+=item detect_scsi_devices ( )
+
+Check /proc/scsi/scsi for telltale model/vendor information.
+
+=cut
 
 sub detect_scsi_devices
 {
@@ -123,6 +153,12 @@ sub detect_scsi_devices
 	);
 }
 
+=item detect_paths ( )
+
+Check for particular paths that only exist under virtualization.
+
+=cut
+
 sub detect_paths
 {
 	my ($self) = @_;
@@ -133,5 +169,20 @@ sub detect_paths
 		'/proc/sys/xen/independent_wallclock' => 'Xen',
 	]);
 }
+
+=back
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2009 Roaring Penguin Software Inc.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See http://dev.perl.org/licenses/ for more information.
+
+
+=cut
 
 1;

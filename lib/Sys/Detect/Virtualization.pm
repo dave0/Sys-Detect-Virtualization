@@ -241,6 +241,8 @@ sub _check_path_exists
 	return undef;
 }
 
+=back
+
 =head1 AUTHOR
 
 Dave O'Neill, <dmo@dmo.ca>
