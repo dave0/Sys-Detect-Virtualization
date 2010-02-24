@@ -293,8 +293,6 @@ sub _check_command_output
 {
 	my($self, $command, $patterns) = @_;
 
-	# TODO: check $ENV{PATH} for $command first, or trust the shell?
-
 	open( my $fh, "$command|") or die $!;
 	my $result = $self->_fh_apply_patterns( $fh, $patterns );
 	close $fh;

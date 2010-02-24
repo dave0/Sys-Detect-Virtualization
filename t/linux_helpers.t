@@ -72,25 +72,25 @@ my %expected_mtab = (
 	foreach my $virt (qw( kvm vmware virtualpc openvz)) {
 		local $ENV{FAKE_DATA} = "t/data/linux/$virt";
 
-		my $got = $d->detect_dmesg();
+		my $got = eval { $d->detect_dmesg()  } || [];
 		cmp_deeply(
 			$got,
 			$expected_dmesg{$virt},
 			"detect_dmesg() against $virt test data") or diag explain $got;
 
-		$got = $d->detect_dmidecode({ ignore_root_check => 1 });
+		$got = eval { $d->detect_dmidecode() } || [];
 		cmp_deeply(
 			$got,
 			$expected_dmidecode{$virt},
 			"detect_dmidecode() against $virt test data") or diag explain $got;
 
-		$got = $d->detect_modules();
+		$got = eval { $d->detect_modules() } || [];
 		cmp_deeply(
 			$got,
 			$expected_lsmod{$virt},
 			"detect_modules() against $virt test data") or diag explain $got;
 
-		$got = $d->detect_mtab();
+		$got = eval { $d->detect_mtab() } || [];
 		cmp_deeply(
 			$got,
 			$expected_mtab{$virt},

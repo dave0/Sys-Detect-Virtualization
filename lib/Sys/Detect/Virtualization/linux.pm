@@ -81,12 +81,17 @@ sub detect_dmidecode
 {
 	my ($self, $args ) = @_;
 
-	if( $> != 0 ) {
-		die "precondition not met: root required for this detector" unless($args && $args->{ignore_root_check});
+	my $dmi_bin = $self->_find_bin( 'dmidecode' ) || '/usr/sbin/dmidecode';
+
+	# Hack!  Parse::DMIDecode doesn't handle dmidecode failures very well,
+	# so we first make sure we can run it.
+	my $rc = system("$dmi_bin >/dev/null 2>&1");
+	if( $rc != 0 ) {
+		die "Could not run $dmi_bin: Command exited with " . ($rc >> 8);
 	}
 
 	my $decoder = Parse::DMIDecode->new(
-		dmidecode => $self->_find_bin( 'dmidecode' ) || '/usr/sbin/dmidecode',
+		dmidecode => $dmi_bin,
 		nowarnings => 1
 	);
 	$decoder->probe();
