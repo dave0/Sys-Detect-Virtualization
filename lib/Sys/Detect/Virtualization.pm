@@ -2,6 +2,7 @@ package Sys::Detect::Virtualization;
 
 use warnings;
 use strict;
+use 5.008;
 
 =head1 NAME
 
