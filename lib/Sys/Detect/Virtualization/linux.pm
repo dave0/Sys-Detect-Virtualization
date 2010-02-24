@@ -48,24 +48,24 @@ sub detect_dmesg
 		'dmesg',
 		[
 			# VMWare
-			qr/vmxnet virtual NIC/i       => 'VMWare',
-			qr/vmware virtual ide cdrom/i => 'VMWare',
+			qr/vmxnet virtual NIC/i       => [ $self->VIRT_VMWARE ],
+			qr/vmware virtual ide cdrom/i => [ $self->VIRT_VMWARE ],
 
 			# Qemu / KVM
-			qr/qemu virtual cpu/i => 'Qemu or KVM',
+			qr/qemu virtual cpu/i => [ $self->VIRT_KVM, $self->VIRT_QEMU ],
 
 			# Microsoft virtual PC
-			qr/Virtual HD, ATA DISK drive/i => 'VirtualPC',
-			qr/Virtual CD, ATAPI CD/i       => 'VirtualPC',
+			qr/Virtual HD, ATA DISK drive/i => [ $self->VIRT_VIRTUALPC ],
+			qr/Virtual CD, ATAPI CD/i       => [ $self->VIRT_VIRTUALPC ],
 
 			# Xen
-			qr/Xen virtual console/ => 'Xen',
+			qr/Xen virtual console/ => [ $self->VIRT_XEN ],
 
 			# Newer kernels are enlightened...
-			qr/booting paravirtualized kernel on kvm/i => 'KVM',
-			qr/booting paravirtualized kernel on lguest/i => 'lguest',
-			qr/booting paravirtualized kernel on vmi/i => 'VMWare',
-			qr/booting paravirtualized kernel on xen/i => 'Xen',
+			qr/booting paravirtualized kernel on kvm/i => [ $self->VIRT_KVM ],
+			qr/booting paravirtualized kernel on lguest/i => [ $self->VIRT_LGUEST ],
+			qr/booting paravirtualized kernel on vmi/i => [ $self->VIRT_VMWARE ],
+			qr/booting paravirtualized kernel on xen/i => [ $self->VIRT_XEN ],
 		  ],
 	);
 
@@ -96,14 +96,17 @@ sub detect_dmidecode
 	# BIOS Information
 	#         Vendor: QEMU
 	if( $decoder->keyword('bios-vendor') eq 'QEMU' ) {
-		return 'QEMU or KVM';
+		return [
+			$self->VIRT_QEMU,
+			$self->VIRT_KVM,
+		];
 	}
 
 	# VMWare:
 	# System Information
 	#         Manufacturer: VMware, Inc.
 	if( $decoder->keyword('system-manufacturer') =~ /VMWare/i ) {
-		return 'VMWare';
+		return [ $self->VIRT_VMWARE ];
 	}
 
 	# System Information
@@ -111,7 +114,7 @@ sub detect_dmidecode
 	#         Product Name: Virtual Machine
 	if(    $decoder->keyword('system-manufacturer') =~ /microsoft/i
 	    && $decoder->keyword('system-product-name') =~ /virtual machine/i ) {
-		return 'VirtualPC';
+		return [ $self->VIRT_VIRTUALPC ];
 	}
 
 	return;
@@ -131,13 +134,16 @@ sub detect_ide_devices
 		'/proc/ide/hd*/model',
 		[
 			# VMWare
-			qr/vmware virtual/ => 'VMWare',
+			qr/vmware virtual/ => [ $self->VIRT_VMWARE ],
 
 			# VirtualPC
-			qr/Virtual [HC]D/i => 'VirtualPC',
+			qr/Virtual [HC]D/i => [ $self->VIRT_VIRTUALPC ],
 
 			# Qemu / KVM
-			qr/QEMU (?:HARDDISK|DVD-ROM)/i => 'Qemu or KVM',
+			qr/QEMU (?:HARDDISK|DVD-ROM)/i => [
+				$self->VIRT_QEMU,
+				$self->VIRT_KVM,
+			],
 		]
 	);
 }
@@ -156,7 +162,7 @@ sub detect_mtab
 		'/etc/mtab',
 		[
 			# vserver
-			qr{^/dev/hdv1 } => 'vserver',
+			qr{^/dev/hdv1 } => [ $self->VIRT_VSERVER ],
 		]
 	);
 }
@@ -175,7 +181,7 @@ sub detect_scsi_devices
 		'/proc/scsi/scsi',
 		[
 			# VMWare
-			qr/Vendor: VMware   Model: Virtual disk/ => 'VMWare',
+			qr/Vendor: VMware   Model: Virtual disk/ => [ $self->VIRT_VMWARE ],
 		]
 	);
 }
@@ -190,10 +196,10 @@ sub detect_paths
 {
 	my ($self) = @_;
 	$self->_check_path_exists([
-		'/dev/vzfs' => 'Virtuozzo',
-		'/dev/vzctl' => 'Virtuozzo or OpenVZ Host',
-		'/proc/vz'  => 'Virtuozzo Guest or Host',
-		'/proc/sys/xen/independent_wallclock' => 'Xen',
+		'/dev/vzfs'  => [ $self->VIRT_VIRTUOZZO, $self->VIRT_OPENVZ ],
+		'/dev/vzctl' => [ $self->VIRT_VIRTUOZZO_HOST, $self->VIRT_OPENVZ_HOST ],
+		'/proc/vz'   => [ $self->VIRT_VIRTUOZZO, $self->VIRT_OPENVZ ],
+		'/proc/sys/xen/independent_wallclock' => [ $self->VIRT_XEN ],
 	]);
 }
 

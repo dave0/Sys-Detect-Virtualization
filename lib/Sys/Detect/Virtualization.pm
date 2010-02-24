@@ -16,6 +16,20 @@ Version 0.100
 
 our $VERSION = '0.100';
 
+use constant {
+	VIRT_KVM       => 'Linux KVM',
+	VIRT_LGUEST    => 'Linux lguest',
+	VIRT_OPENVZ    => 'OpenVZ',
+	VIRT_QEMU      => 'QEmu',
+	VIRT_VIRTUALPC => 'Microsoft Virtual PC',
+	VIRT_VIRTUOZZO => 'Virtuozzo',
+	VIRT_VMWARE    => 'VMWare',
+	VIRT_VSERVER   => 'linux-vserver',
+	VIRT_XEN       => 'Xen',
+
+	VIRT_OPENVZ_HOST    => 'OpenVZ Host',
+	VIRT_VIRTUOZZO_HOST => 'Virtuozzo Host',
+};
 
 =head1 SYNOPSIS
 
@@ -84,10 +98,10 @@ sub new
 Runs detection heuristics.  Returns a list of possible virtualization systems,
 or an empty list if none were detected.
 
+Possible hits are returned in order of most likely to least likely.
+
 Note that the failure to detect does NOT mean the system is not virtualized --
 it simply means we couldn't detect it.
-
-=back
 
 =cut
 
@@ -95,25 +109,60 @@ sub detect
 {
 	my ($self) = @_;
 
+	my $guesses = $self->_detect();
+
+	if( ! $guesses ) {
+		return;
+	}
+
+	return sort { $guesses->{$a} <=> $guesses->{$b} } keys %$guesses;
+}
+
+sub _detect
+{
+	my ($self) = @_;
+
 	my @detectors = $self->get_detectors();
 
-	my %virt_found;
+	my %guesses;
 	for my $name ( @detectors ) {
 		print "Running detector $name\n" if $self->{verbose};
 
 		my $found = eval { $self->$name; };
-		if( $found ) {
-			$virt_found{$found}++;
-			print "$name callback detected $found\n" if $self->{verbose};
-		} else {
+		if( ! $found || !scalar(@$found) ) {
 			if( $@ ) {
 				warn "Callback $name failed: $@" if $self->{verbose};
 			}
 			print "$name callback did not detect virtualization\n" if $self->{verbose};
+			next;
+		}
+
+		for my $guess (@$found) {
+			$guesses{$guess}++;
+			print "$name callback detected $guess\n" if $self->{verbose};
 		}
 	}
 
-	return keys %virt_found;
+	return \%guesses
+}
+
+=item guess ( )
+
+Runs detection heuristics and returns a single answer based on the "best guess" available.
+
+Currently, this is defined as the virt platform with the most heuristic hits.
+
+=back
+
+=cut
+
+sub guess
+{
+	my ($self) = @_;
+
+	my ($best, @rest) = $self->detect();
+
+	return $best;
 }
 
 =head2 Internal Methods
@@ -143,7 +192,7 @@ sub get_detectors
 Check, linewise, the data from $fh against the patterns in $patterns.
 
 $patterns is a listref read pairwise.  The first item of each pair is the
-pattern, and the second item of each pair is the name of the virt solution
+pattern, and the second item of each pair is a list of names of virt solutions
 detected by the pattern.
 
 =cut
@@ -152,16 +201,18 @@ sub _fh_apply_patterns
 {
 	my ($self, $fh, $patterns) = @_;
 
+	my @hits;
+
 	while(my $line = <$fh>) {
 		for(my $i = 0; $i < scalar @$patterns; $i+=2) {
 			my ($pattern, $name) = @{$patterns}[$i, $i+1];
 			if( $line =~ /$pattern/ ) {
-				return $name;
+				push @hits, @{$name};
 			}
 		}
 	}
 
-	return undef;
+	return \@hits;
 }
 
 =item _check_command_output ( $command, $patterns )
@@ -205,6 +256,7 @@ sub _check_file_contents
 	my ($self, $fileglob, $patterns) = @_;
 
 	# TODO: caller does globbing, passes listref of filenames?
+	my @hits;
 	while( my $filename = glob($fileglob) ) {
 		my $fh;
 		if( ! open( $fh, "<$filename") ) {
@@ -213,9 +265,11 @@ sub _check_file_contents
 		}
 		my $result = $self->_fh_apply_patterns( $fh, $patterns );
 		close $fh;
-		if( $result ) { return $result };
+		if( $result ) {
+			push @hits, @$result;
+		}
 	}
-	return undef;
+	return \@hits;
 }
 
 =item _check_path_exists ( $paths )
@@ -232,14 +286,15 @@ sub _check_path_exists
 {
 	my ($self, $paths) = @_;
 
+	my @hits;
 	for(my $i = 0; $i < scalar @{$paths}; $i+=2) {
 		my ($path, $name) = @{$paths}[$i, $i+1];
 		if( -e $path ) {
-			return $name;
+			push @hits, @$name;
 		}
 	}
 
-	return undef;
+	return \@hits;
 }
 
 =back
