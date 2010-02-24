@@ -12,7 +12,7 @@ virtdetect -- Detect if this system is running as a virtual machine
 
 =head1 SYNOPSIS
 
-virtdetect [ --verbose ]
+virtdetect [ --verbose ] [ --detect-host ]
 
 =head1 DESCRIPTION
 
@@ -22,6 +22,9 @@ virtualization.
 If --verbose is enabled, each check will be output.  Otherwise, only the result
 will be output.
 
+if --detect-host is enabled, try and detect virtualization host (as opposed to
+guest) platforms
+
 =head1 OPTIONS
 
 =over 4
@@ -29,6 +32,10 @@ will be output.
 =item B<--verbose>
 
 Enable debug output
+
+=item B<--detect-host>
+
+Try to detect virtualization host (as opposed to guest) platform.
 
 =item B<--help>
 
@@ -74,8 +81,10 @@ by the Free Software Foundation; or the Artistic License.
 =cut
 
 my $verbose = 0;
+my $detect_host = 0;
 my $rc = GetOptions(
 	'verbose'  => \$verbose,
+	'detect-host'  => \$detect_host,
 	'help'     => sub { pod2usage(-exitval => EXIT_SUCCESS, -verbose => 1) },
 	'man'      => sub { pod2usage(-exitval => EXIT_SUCCESS, -verbose => 2) },
 );
@@ -85,7 +94,7 @@ if(!$rc) {
 	pod2usage(-exitval => EXIT_FAILURE, -verbose => 0);
 }
 
-my $d = eval { Sys::Detect::Virtualization->new({ verbose => $verbose }); };
+my $d = eval { Sys::Detect::Virtualization->new({ verbose => $verbose, ignore_host => !$detect_host }); };
 if( $@ ) {
 	my $err = $@;
 	$err =~ s/ at .*//;

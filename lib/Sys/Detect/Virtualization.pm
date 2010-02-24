@@ -29,6 +29,10 @@ use constant {
 	VIRT_OPENVZ_HOST    => 'OpenVZ Host',
 };
 
+my %_hosts = (
+	VIRT_OPENVZ_HOST() => VIRT_OPENVZ(),
+);
+
 # used for secondary sort where detector finds similar solutions
 my %_priorities = (
 	VIRT_OPENVZ_HOST()    => '1.2',
@@ -70,12 +74,27 @@ under virtualization, using various heuristics.
 
 =over 4
 
-=item new ( )
+=item new ( $args )
 
 Construct a new detector object.  On success, returns the object.  On failure, dies.
 
 This constructor will fail if the system is not running a supported OS.
 Currently, only Linux is supported.
+
+$args is an optional hash reference containing additional arguments for the
+constructor.  Currently supported are:
+
+=over 4
+
+=item verbose
+
+Set to 1 if we should output verbose debugging, 0 otherwise.  Defaults to 0.
+
+=item ignore_host
+
+Set to 1 if we should report no virtualization if a virtualization host (as opposed to guest) is detected.  Defaults to 1.
+
+=back
 
 =back
 
@@ -97,7 +116,9 @@ sub new
 	}
 
 	my $self = $submodule->new($extra_args);
-	$self->{verbose} = exists $extra_args->{verbose} ? $extra_args->{verbose} : 0;
+
+	$self->{verbose}     = exists $extra_args->{verbose}     ? $extra_args->{verbose}     : 0;
+	$self->{ignore_host} = exists $extra_args->{ignore_host} ? $extra_args->{ignore_host} : 1;
 
 	return $self;
 }
@@ -157,6 +178,17 @@ sub _detect
 			$guesses{$guess}++;
 			print "$name callback detected $guess\n" if $self->{verbose};
 		}
+	}
+
+	# Can't be both host and guest at the same time
+	foreach my $host_type (keys %_hosts) {
+		if( exists $guesses{$host_type} ) {
+			delete $guesses{ $_hosts{$host_type} };
+		}
+	}
+
+	if( $self->{ignore_host} ) {
+		delete $guesses{$_} for keys %_hosts;
 	}
 
 	return \%guesses
