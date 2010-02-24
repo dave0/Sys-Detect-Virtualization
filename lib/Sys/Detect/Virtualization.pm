@@ -195,12 +195,28 @@ Returns a list of all detector subroutines for the given instance.
 
 sub get_detectors
 {
-	my ($self) = @_;
+	my ($thingy) = @_;
 
-	my $class = ref $self;
+	my $class = ref $thingy || $thingy;
 
 	no strict 'refs';
+
+	# Note: This does not consider parent classes.  This is intentional.
 	return grep { /^detect_/ } keys %{"${class}::"};
+}
+
+=item _find_bin ( $command )
+
+Returns full path to given command.  This is a bit of a hack, and mostly exists
+so that we can override it for testing purposes.
+
+=cut
+
+sub _find_bin
+{
+	my ($self, $command) = @_;
+
+	return ( grep { -x $_ } map { "$_/$command" } split(/:/, $ENV{PATH}) )[0]
 }
 
 =item _fh_apply_patterns ( $fh, $patterns )

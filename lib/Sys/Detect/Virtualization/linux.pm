@@ -45,7 +45,7 @@ sub detect_dmesg
 	my ($self) = @_;
 
 	return $self->_check_command_output(
-		'dmesg',
+		$self->_find_bin('dmesg'),
 		[
 			# VMWare
 			qr/vmxnet virtual NIC/i       => [ $self->VIRT_VMWARE ],
@@ -79,15 +79,14 @@ Check the output of the 'dmidecode' command for telltales.
 
 sub detect_dmidecode
 {
-	my ($self) = @_;
+	my ($self, $args ) = @_;
 
 	if( $> != 0 ) {
-		die "precondition not met: root required for this detector";
+		die "precondition not met: root required for this detector" unless($args && $args->{ignore_root_check});
 	}
 
-	# TODO: Parse::DMIDecode can detect dmidecode binary if we add File::Which as a prereq
 	my $decoder = Parse::DMIDecode->new(
-		dmidecode => '/usr/sbin/dmidecode',
+		dmidecode => $self->_find_bin( 'dmidecode' ) || '/usr/sbin/dmidecode',
 		nowarnings => 1
 	);
 	$decoder->probe();
@@ -214,7 +213,7 @@ sub detect_modules
 	my ($self) = @_;
 
 	return $self->_check_command_output(
-		'lsmod',
+		$self->_find_bin( 'lsmod' ),
 		[
 			# virtio support exists for kvm and lguest
 			qr/^virtio_(?:blk|pci|net|balloon)/ => [ $self->VIRT_KVM, $self->VIRT_LGUEST ],

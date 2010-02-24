@@ -18,6 +18,8 @@ MANIFEST
 META.yml
 README
 script/virtdetect
+t/bin/dmesg
+t/bin/dmidecode
 t/constructor.t
 t/data/linux/kvm/dmesg.out
 t/data/linux/kvm/dmidecode.out
@@ -25,7 +27,9 @@ t/data/linux/virtualpc/dmesg.out
 t/data/linux/virtualpc/dmidecode.out
 t/data/linux/vmware/dmesg.out
 t/data/linux/vmware/dmidecode.out
+t/lib/Sys/Detect/Virtualization/dummy_linux.pm
 t/linux.t
+t/linux_helpers.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
