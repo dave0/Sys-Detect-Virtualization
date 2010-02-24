@@ -196,9 +196,9 @@ sub detect_paths
 {
 	my ($self) = @_;
 	return $self->_check_path_exists([
-		'/dev/vzfs'  => [ $self->VIRT_VIRTUOZZO, $self->VIRT_OPENVZ ],
-		'/dev/vzctl' => [ $self->VIRT_VIRTUOZZO_HOST, $self->VIRT_OPENVZ_HOST ],
-		'/proc/vz'   => [ $self->VIRT_VIRTUOZZO, $self->VIRT_OPENVZ ],
+		'/dev/vzfs'  => [ $self->VIRT_OPENVZ ],
+		'/dev/vzctl' => [ $self->VIRT_OPENVZ_HOST ],
+		'/proc/vz'   => [ $self->VIRT_OPENVZ ],
 		'/proc/sys/xen/independent_wallclock' => [ $self->VIRT_XEN ],
 	]);
 }

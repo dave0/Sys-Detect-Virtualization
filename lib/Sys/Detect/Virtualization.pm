@@ -22,21 +22,17 @@ use constant {
 	VIRT_OPENVZ    => 'OpenVZ',
 	VIRT_QEMU      => 'Qemu',
 	VIRT_VIRTUALPC => 'Microsoft Virtual PC',
-	VIRT_VIRTUOZZO => 'Virtuozzo',
 	VIRT_VMWARE    => 'VMWare',
 	VIRT_VSERVER   => 'linux-vserver',
 	VIRT_XEN       => 'Xen',
 
 	VIRT_OPENVZ_HOST    => 'OpenVZ Host',
-	VIRT_VIRTUOZZO_HOST => 'Virtuozzo Host',
 };
 
 # used for secondary sort where detector finds similar solutions
 my %_priorities = (
-	VIRT_OPENVZ_HOST()    => '1.3',
-	VIRT_VIRTUOZZO_HOST() => '1.2',
+	VIRT_OPENVZ_HOST()    => '1.2',
 	VIRT_OPENVZ()         => '1.1',
-	VIRT_VIRTUOZZO()      => '1.0',
 
 	VIRT_KVM()            => '1.1',
 	VIRT_QEMU()           => '1.0',
