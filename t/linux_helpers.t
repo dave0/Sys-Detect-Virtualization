@@ -3,7 +3,7 @@ use warnings;
 use Test::More;
 use Test::Deep;
 
-plan tests => 9;
+plan tests => 12;
 
 use lib qw( t/lib );
 use_ok('Sys::Detect::Virtualization::dummy_linux');
@@ -40,20 +40,42 @@ my %expected_dmidecode = (
 	virtualpc => [ Sys::Detect::Virtualization::VIRT_VIRTUALPC() ],
 );
 
+my %expected_lsmod = (
+	kvm       => [
+		Sys::Detect::Virtualization::VIRT_KVM(),
+		Sys::Detect::Virtualization::VIRT_LGUEST(),
+		Sys::Detect::Virtualization::VIRT_KVM(),
+		Sys::Detect::Virtualization::VIRT_LGUEST(),
+	],
+	vmware    => [
+		Sys::Detect::Virtualization::VIRT_VMWARE(),
+		Sys::Detect::Virtualization::VIRT_VMWARE(),
+	],
+	virtualpc => [ ],
+);
+
 {
 	local $ENV{PATH} = 't/bin';
 	foreach my $virt (qw( kvm vmware virtualpc )) {
 		local $ENV{FAKE_DATA} = "t/data/linux/$virt";
 
+		my $got = $d->detect_dmesg();
 		cmp_deeply(
-			$d->detect_dmesg(),
+			$got,
 			$expected_dmesg{$virt},
-			"detect_dmesg() against $virt test data");
+			"detect_dmesg() against $virt test data") or diag explain $got;
 
+		$got = $d->detect_dmidecode({ ignore_root_check => 1 });
 		cmp_deeply(
-			$d->detect_dmidecode({ ignore_root_check => 1 }),
+			$got,
 			$expected_dmidecode{$virt},
-			"detect_dmidecode() against $virt test data");
+			"detect_dmidecode() against $virt test data") or diag explain $got;
+
+		$got = $d->detect_modules();
+		cmp_deeply(
+			$got,
+			$expected_lsmod{$virt},
+			"detect_modules() against $virt test data") or diag explain $got;
 
 	}
 }

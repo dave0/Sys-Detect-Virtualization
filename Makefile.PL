@@ -10,7 +10,7 @@ requires 'Pod::Usage';
 requires 'POSIX';
 requires 'Parse::DMIDecode' => '0.03';
 
-test_requires 'Test::More';
+test_requires 'Test::More'  => '0.82';
 test_requires 'Test::Deep';
 test_requires 'Test::Exception';
 

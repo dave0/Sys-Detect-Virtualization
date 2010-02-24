@@ -217,6 +217,9 @@ sub detect_modules
 		[
 			# virtio support exists for kvm and lguest
 			qr/^virtio_(?:blk|pci|net|balloon)/ => [ $self->VIRT_KVM, $self->VIRT_LGUEST ],
+
+			# similarly, for VMWare
+			qr/^(?:vmmemctl|vmxnet)/ => [ $self->VIRT_VMWARE ],
 		]
 	);
 }
