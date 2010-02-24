@@ -324,7 +324,7 @@ sub _check_file_contents
 	while( my $filename = glob($fileglob) ) {
 		my $fh;
 		if( ! open( $fh, "<$filename") ) {
-#			warn "skipping $filename: $!";
+			warn "skipping $filename: $!" if $self->{verbose};
 			next;
 		}
 		my $result = $self->_fh_apply_patterns( $fh, $patterns );

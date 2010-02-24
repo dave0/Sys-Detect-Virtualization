@@ -13,6 +13,7 @@ requires 'Parse::DMIDecode' => '0.03';
 test_requires 'Test::More'  => '0.82';
 test_requires 'Test::Deep';
 test_requires 'Test::Exception';
+test_requires 'File::Spec';
 
 install_script 'script/virtdetect';
 
