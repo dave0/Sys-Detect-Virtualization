@@ -1,9 +1,12 @@
 Changes
-MANIFEST
-Makefile.PL
-README
 lib/Sys/Detect/Virtualization.pm
-t/00-load.t
+lib/Sys/Detect/Virtualization/linux.pm
+Makefile.PL
+MANIFEST
+README
+script/virtdetect
+t/constructor.t
+t/detectors.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
