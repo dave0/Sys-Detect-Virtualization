@@ -4,6 +4,8 @@ use strict;
 
 use base qw( Sys::Detect::Virtualization );
 
+use Parse::DMIDecode ();
+
 =head1 NAME
 
 Sys::Detect::Virtualization::linux - Detection of virtualization under a Linux system
@@ -83,17 +85,36 @@ sub detect_dmidecode
 		die "precondition not met: root required for this detector";
 	}
 
-	return $self->_check_command_output(
-		'dmidecode 2> /dev/null',
-		[
-			# VMWare
-			qr/Manufacturer:\s+VMWare, Inc/ => 'VMWare',
-			qr/Product Name:\s+VMWare/      => 'VMWare',
-
-			# Qemu / KVM
-			qr/Vendor: QEMU/ => 'Qemu or KVM',
-		],
+	# TODO: Parse::DMIDecode can detect dmidecode binary if we add File::Which as a prereq
+	my $decoder = Parse::DMIDecode->new(
+		dmidecode => '/usr/sbin/dmidecode',
+		nowarnings => 1
 	);
+	$decoder->probe();
+
+	# First, check BIOS vendor
+	# BIOS Information
+	#         Vendor: QEMU
+	if( $decoder->keyword('bios-vendor') eq 'QEMU' ) {
+		return 'QEMU or KVM';
+	}
+
+	# VMWare:
+	# System Information
+	#         Manufacturer: VMware, Inc.
+	if( $decoder->keyword('system-manufacturer') =~ /VMWare/i ) {
+		return 'VMWare';
+	}
+
+	# System Information
+	#         Manufacturer: Microsoft Corporation
+	#         Product Name: Virtual Machine
+	if(    $decoder->keyword('system-manufacturer') =~ /microsoft/i
+	    && $decoder->keyword('system-product-name') =~ /virtual machine/i ) {
+		return 'VirtualPC';
+	}
+
+	return;
 }
 
 =item detect_ide_devices ( )
