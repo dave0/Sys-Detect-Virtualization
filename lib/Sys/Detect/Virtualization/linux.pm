@@ -94,7 +94,8 @@ sub detect_dmidecode
 	# First, check BIOS vendor
 	# BIOS Information
 	#         Vendor: QEMU
-	if( $decoder->keyword('bios-vendor') eq 'QEMU' ) {
+	my $vendor = $decoder->keyword('bios-vendor');
+	if( $vendor && $vendor eq 'QEMU' ) {
 		return [
 			$self->VIRT_QEMU,
 			$self->VIRT_KVM,
@@ -104,19 +105,21 @@ sub detect_dmidecode
 	# VMWare:
 	# System Information
 	#         Manufacturer: VMware, Inc.
-	if( $decoder->keyword('system-manufacturer') =~ /VMWare/i ) {
+	my $mfgr = $decoder->keyword('system-manufacturer');
+	if( $mfgr && $mfgr =~ /VMWare/i ) {
 		return [ $self->VIRT_VMWARE ];
 	}
 
 	# System Information
 	#         Manufacturer: Microsoft Corporation
 	#         Product Name: Virtual Machine
-	if(    $decoder->keyword('system-manufacturer') =~ /microsoft/i
-	    && $decoder->keyword('system-product-name') =~ /virtual machine/i ) {
+	my $product = $decoder->keyword('system-product-name');
+	if( $mfgr && $product && $mfgr =~ /microsoft/i
+	    && $product =~ /virtual machine/i ) {
 		return [ $self->VIRT_VIRTUALPC ];
 	}
 
-	return;
+	return [];
 }
 
 =item detect_ide_devices ( )
@@ -162,6 +165,7 @@ sub detect_mtab
 		[
 			# vserver
 			qr{^/dev/hdv1 } => [ $self->VIRT_VSERVER ],
+			qr{^simfs }     => [ $self->VIRT_OPENVZ ],
 		]
 	);
 }
