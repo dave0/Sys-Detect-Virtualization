@@ -12,3 +12,6 @@ pod2htm*.tmp
 Sys-Detect-Virtualization-*
 *~
 *.swp
+MANIFEST.bak
+META.yml
+inc/
