@@ -195,12 +195,31 @@ Check for particular paths that only exist under virtualization.
 sub detect_paths
 {
 	my ($self) = @_;
-	$self->_check_path_exists([
+	return $self->_check_path_exists([
 		'/dev/vzfs'  => [ $self->VIRT_VIRTUOZZO, $self->VIRT_OPENVZ ],
 		'/dev/vzctl' => [ $self->VIRT_VIRTUOZZO_HOST, $self->VIRT_OPENVZ_HOST ],
 		'/proc/vz'   => [ $self->VIRT_VIRTUOZZO, $self->VIRT_OPENVZ ],
 		'/proc/sys/xen/independent_wallclock' => [ $self->VIRT_XEN ],
 	]);
+}
+
+=item detect_modules ( )
+
+Check for telltale guest modules
+
+=cut
+
+sub detect_modules
+{
+	my ($self) = @_;
+
+	return $self->_check_command_output(
+		'lsmod',
+		[
+			# virtio support exists for kvm and lguest
+			qr/^virtio_(?:blk|pci|net|balloon)/ => [ $self->VIRT_KVM, $self->VIRT_LGUEST ],
+		]
+	);
 }
 
 =back
