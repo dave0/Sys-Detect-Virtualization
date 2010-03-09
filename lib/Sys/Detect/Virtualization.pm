@@ -26,6 +26,8 @@ use constant {
 	VIRT_VSERVER   => 'linux-vserver',
 	VIRT_XEN       => 'Xen',
 
+	VIRT_FREEBSD_JAIL => 'FreeBSD Jail',
+
 	VIRT_OPENVZ_HOST    => 'OpenVZ Host',
 };
 

@@ -1,1 +1,9 @@
 Sys-Detect-Virtualization-.*\.tar\.gz
+\.git/
+\.gitignore$
+.*~
+blib/
+pm_to_blib
+Makefile\.old
+Makefile$
+MANIFEST\.SKIP

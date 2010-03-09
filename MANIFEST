@@ -12,9 +12,11 @@ inc/Module/Install/Scripts.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Sys/Detect/Virtualization.pm
+lib/Sys/Detect/Virtualization/freebsd.pm
 lib/Sys/Detect/Virtualization/linux.pm
 Makefile.PL
 MANIFEST
+MANIFEST.bak
 META.yml
 README
 script/virtdetect
@@ -35,6 +37,7 @@ t/data/linux/virtualpc/lsmod.out
 t/data/linux/vmware/dmesg.out
 t/data/linux/vmware/dmidecode.out
 t/data/linux/vmware/lsmod.out
+t/freebsd.t
 t/lib/Sys/Detect/Virtualization/dummy_linux.pm
 t/linux.t
 t/linux_helpers.t
