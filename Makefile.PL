@@ -17,7 +17,5 @@ test_requires 'File::Spec';
 
 install_script 'script/virtdetect';
 
-auto_install;
-
 WriteAll;
 
