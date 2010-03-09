@@ -8,7 +8,7 @@ license  'perl';
 requires 'Getopt::Long';
 requires 'Pod::Usage';
 requires 'POSIX';
-requires 'Parse::DMIDecode' => '0.03';
+recommends 'Parse::DMIDecode' => '0.03';
 
 test_requires 'Test::More'  => '0.82';
 test_requires 'Test::Deep';

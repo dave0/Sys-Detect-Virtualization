@@ -4,8 +4,6 @@ use strict;
 
 use base qw( Sys::Detect::Virtualization );
 
-use Parse::DMIDecode ();
-
 =head1 NAME
 
 Sys::Detect::Virtualization::linux - Detection of virtualization under a Linux system
@@ -80,6 +78,13 @@ Check the output of the 'dmidecode' command for telltales.
 sub detect_dmidecode
 {
 	my ($self, $args ) = @_;
+
+
+	eval { require Parse::DMIDecode };
+	if( $@ ) {
+		die "Cannot run dmidecode detection without Parse::DMIDecode: $@";
+	}
+
 
 	my $dmi_bin = $self->_find_bin( 'dmidecode' ) || '/usr/sbin/dmidecode';
 
