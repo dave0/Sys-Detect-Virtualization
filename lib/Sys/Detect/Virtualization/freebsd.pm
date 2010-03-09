@@ -51,6 +51,27 @@ sub detect_ps
 	);
 }
 
+=item detect_dmesg ( )
+
+Check the output of the 'dmesg' command for telltales.
+
+=cut
+
+sub detect_dmesg
+{
+	my ($self) = @_;
+
+	return $self->_check_command_output(
+		$self->_find_bin('dmesg'),
+		[
+			# Qemu / KVM
+			qr/qemu harddisk/i => [ $self->VIRT_KVM, $self->VIRT_QEMU ],
+			qr/qemu dvd-rom/i  => [ $self->VIRT_KVM, $self->VIRT_QEMU ],
+		],
+	);
+
+}
+
 =back
 
 =head1 LICENSE AND COPYRIGHT

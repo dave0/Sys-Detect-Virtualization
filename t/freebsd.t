@@ -14,5 +14,5 @@ isa_ok( $d, 'Sys::Detect::Virtualization::freebsd');
 
 is_deeply(
 	[ sort $d->get_detectors() ],
-	[ sort qw( detect_ps ) ],
+	[ sort qw( detect_dmesg detect_ps ) ],
 	'Got expected detectors on FreeBSD');
