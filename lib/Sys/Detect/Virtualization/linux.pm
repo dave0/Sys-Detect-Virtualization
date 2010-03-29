@@ -86,7 +86,10 @@ sub detect_dmidecode
 	}
 
 
-	my $dmi_bin = $self->_find_bin( 'dmidecode' ) || '/usr/sbin/dmidecode';
+	my $dmi_bin = $self->_find_bin( 'dmidecode' );
+	if( ! $dmi_bin ) {
+		die 'dmidecode binary not found';
+	}
 
 	# Hack!  Parse::DMIDecode doesn't handle dmidecode failures very well,
 	# so we first make sure we can run it.

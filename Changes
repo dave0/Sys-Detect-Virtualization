@@ -1,5 +1,8 @@
 Revision history for Sys-Detect-Virtualization
 
+0.102	Mon, 29 Mar 2010 10:05:51 -0400	(dmo)
+	
+
 0.101	Tue, 09 Mar 2010 15:11:19 -0500	(dmo)
 	Add preliminary FreeBSD support without much detection ability.
 	Make Parse::DMIDecode optional and used at runtime

@@ -10,11 +10,11 @@ Sys::Detect::Virtualization - Detect if a UNIX system is running as a virtual ma
 
 =head1 VERSION
 
-Version 0.101
+Version 0.102
 
 =cut
 
-our $VERSION = '0.101';
+our $VERSION = '0.102';
 
 use constant {
 	VIRT_KVM       => 'Linux KVM',
@@ -241,16 +241,25 @@ sub get_detectors
 
 =item _find_bin ( $command )
 
-Returns full path to given command.  This is a bit of a hack, and mostly exists
-so that we can override it for testing purposes.
+Returns full path to given command by searching $ENV{PATH}.  If not present in
+the path variable, the directories /usr/sbin, /usr/bin, /sbin, and /bin are
+appended.
 
 =cut
 
+my @basic_paths = qw( /usr/sbin /usr/bin /sbin /bin );
 sub _find_bin
 {
 	my ($self, $command) = @_;
 
-	return ( grep { -x $_ } map { "$_/$command" } split(/:/, $ENV{PATH}) )[0]
+	my @paths = split(/:/, $ENV{PATH});
+	foreach my $path (@basic_paths) {
+		if( ! grep { $_ eq $path } @paths ) {
+			push @paths, $path;
+		}
+	}
+
+	return ( grep { -x $_ } map { "$_/$command" } @paths )[0]
 }
 
 =item _fh_apply_patterns ( $fh, $patterns )
