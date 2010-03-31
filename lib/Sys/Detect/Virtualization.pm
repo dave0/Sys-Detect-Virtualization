@@ -304,7 +304,9 @@ sub _check_command_output
 {
 	my($self, $command, $patterns) = @_;
 
-	open( my $fh, "$command|") or die $!;
+	# TODO: open3 or roll our own fork/exec?
+	# TODO: error code of command
+	open( my $fh, "$command 2>/dev/null |") or die $!;
 	my $result = $self->_fh_apply_patterns( $fh, $patterns );
 	close $fh;
 
