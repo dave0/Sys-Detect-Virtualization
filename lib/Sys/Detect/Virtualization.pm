@@ -10,11 +10,11 @@ Sys::Detect::Virtualization - Detect if a UNIX system is running as a virtual ma
 
 =head1 VERSION
 
-Version 0.102
+Version 0.103
 
 =cut
 
-our $VERSION = '0.102';
+our $VERSION = '0.103';
 
 use constant {
 	VIRT_KVM       => 'Linux KVM',
