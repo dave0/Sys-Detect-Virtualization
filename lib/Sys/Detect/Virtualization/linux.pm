@@ -98,11 +98,17 @@ sub detect_dmidecode
 		die "Could not run $dmi_bin: Command exited with " . ($rc >> 8);
 	}
 
-	my $decoder = Parse::DMIDecode->new(
-		dmidecode => $dmi_bin,
-		nowarnings => 1
-	);
-	$decoder->probe();
+	my $decoder;
+	{
+		local $SIG{__WARN__} = sub {
+			print "$_[0]\n" if $self->{verbose};
+		};
+		$decoder = Parse::DMIDecode->new(
+			dmidecode => $dmi_bin,
+			nowarnings => 1
+		);
+		$decoder->probe();
+	}
 
 	# First, check BIOS vendor
 	# BIOS Information
