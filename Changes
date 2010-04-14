@@ -1,5 +1,9 @@
 Revision history for Sys-Detect-Virtualization
 
+0.104	Wed, 14 Apr 2010 10:43:45 -0400	(dmo)
+	Hide annoying carp/warn output from Parse::DMIDecode unless in verbose
+	mode
+
 0.103	Thu, 01 Apr 2010 09:36:44 -0400 (dmo)
 	Throw away stderr from commands to avoid spewing junk to caller's stderr
 
