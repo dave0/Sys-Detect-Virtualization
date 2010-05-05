@@ -1,5 +1,8 @@
 Revision history for Sys-Detect-Virtualization
 
+0.105	Wed, 05 May 2010 10:52:23 -0400 (dmo)
+	Avoid running t/linux_helpers.t if we can't invoke scripts from t/bin
+
 0.104	Wed, 14 Apr 2010 10:43:45 -0400	(dmo)
 	Hide annoying carp/warn output from Parse::DMIDecode unless in verbose
 	mode
