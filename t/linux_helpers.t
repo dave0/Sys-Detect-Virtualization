@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 use Test::Deep;
 
+plan skip_all => 'Need to invoke scripts in t/bin' unless do{ local $ENV{PATH} = './t/bin'; system('FAKE_DATA=t/data/linux/vmware dmesg >/dev/null 2>&1') } == 0;
 plan tests => 19;
 
 use lib qw( t/lib );
