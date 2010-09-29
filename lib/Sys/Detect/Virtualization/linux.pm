@@ -64,6 +64,9 @@ sub detect_dmesg
 			qr/booting paravirtualized kernel on lguest/i => [ $self->VIRT_LGUEST ],
 			qr/booting paravirtualized kernel on vmi/i => [ $self->VIRT_VMWARE ],
 			qr/booting paravirtualized kernel on xen/i => [ $self->VIRT_XEN ],
+
+			# Virtualbox (probably)
+			qr/VBOX (?:CD-ROM|HARDDISK)/ => [ $self->VIRT_VIRTUALBOX ],
 		  ],
 	);
 
@@ -243,6 +246,8 @@ sub detect_modules
 
 			# similarly, for VMWare
 			qr/^(?:vmmemctl|vmxnet)/ => [ $self->VIRT_VMWARE ],
+
+			qr/^vboxadd/ => [ $self->VIRT_VIRTUALBOX ],
 		]
 	);
 }

@@ -29,6 +29,8 @@ use constant {
 	VIRT_FREEBSD_JAIL => 'FreeBSD Jail',
 
 	VIRT_OPENVZ_HOST    => 'OpenVZ Host',
+
+	VIRT_VIRTUALBOX => 'VirtualBox',
 };
 
 my %_hosts = (
